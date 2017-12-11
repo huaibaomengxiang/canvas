@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        margin:0;
+        padding:0;
+        list-style: none;
+        box-sizing: border-box;
+    }
+    html,body{
+        width: 100%;
+        height: 100%;
+        padding-top: 50px;
+    }
+    canvas{
+        display: block;
+        margin:0 auto;
+        background: #eee;
+    }
+</style>
+<body>
+    <canvas width="1000" height="600"></canvas>
+</body>
+</html>
+<script>
+    var c=document.querySelector("canvas")
+    var ctx=c.getContext("2d")
+
+    //函数
+    window.requestNextAnimationFrame = (function(){
+        var originalWebkitMethod,
+            wrapper = undefined,
+            callback = undefined,
+            geckoVersion = 0,
+            userAgent = navigator.userAgent,
+            index = 0,
+            self = this;
+        if(window.webkitRequestAnimationFrame){
+            wrapper = function(time){
+                if(time === undefined){
+                    time += new Date();
+                }
+                self.callback(time);
+            };
+            originalWebkitMethod = window.webkitRequestAnimationFrame;
+            window.webkitRequestAnimationFrame = function(callback,element){
+                self.callback = callback;
+                originalWebkitMethod(wrapper , element);
+            }
+        }
+        if(window.mozRequestAnimationFrame){
+            index = userAgent.indexOf('rv:');
+            if(userAgent.indexOf('Gecko') != -1){
+                geckoVersion = userAgent.substr(index+3 , 3);
+                if(geckoVersion === '2.0'){
+                    window.mozRequestAnimationFrame = undefined;
+                }
+            }
+        }
+        return window.requestNextAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function (callback , element){
+                var start,
+                    finish;
+                window.setTimeout(function(){
+                    start = +new Date();
+                    callback(start);
+                    finish = +new Date();
+                    self.timeout = 1000/60 - (finish - start);
+                } , self.timeout);
+            };
+    })();
+
+    function Line() {
+        this.x=Math.random()*c.width
+        this.endx=Math.random()*c.width
+        this.k=-600/(this.endx-this.x)
+        this.b=-(this.k*this.x)
+        this.speed=5
+        this.panit=function(){
+            ctx.beginPath()
+            ctx.moveTo(this.x,0)
+            ctx.lineTo(this.endx,600)
+            ctx.strokeStyle="black"
+            ctx.stroke()
+        }
+        this.step=function () {
+            if(this.x>c.width||this.endx>c.width){
+                this.speed*=-1
+            }
+            if(this.x<0||this.endx<0){
+                this.speed*=-1
+            }
+            this.x+=this.speed
+            this.endx+=this.speed
+            this.b=-(this.k*this.x)
+        }
+    }
+    function Dot(dx,dy) {
+        this.paint=function () {
+            ctx.beginPath()
+            ctx.arc(dx,dy,3,0, Math.PI * 2,false)
+            ctx.fillStyle="black"
+            ctx.fill()
+        }
+    }
+
+
+//    大量
+    var lines=[]
+    var dots=[]
+    function creatDot() {
+        var aa=[]
+        for(var i=0;i<lines.length;i++){
+            for(var j=0;j<lines.length;j++){
+                var dx=(lines[i].b-lines[j].b)/(lines[j].k-lines[i].k)
+                var dy=-(lines[i].k*dx+lines[i].b)
+                var dot=new Dot(dx,dy)
+                aa.push(dot)
+            }
+        }
+        dots=aa
+    }
+    function paintDot() {
+        for(var i=0;i<dots.length;i++){
+            dots[i].paint()
+        }
+    }
+    function creatLine() {
+        var line=new Line()
+        if(lines.length<10){
+            lines.push(line)
+        }
+    }
+    function paintLine() {
+        for(var i=0;i<lines.length;i++){
+            lines[i].panit()
+        }
+    }
+    function stepLine() {
+        for(var i=0;i<lines.length;i++){
+            lines[i].step()
+        }
+    }
+//一根
+//    var lineone=new Line()
+//    var linetwo=new Line()
+//    setInterval(function () {
+//        ctx.clearRect(0,0,c.width,c.height)
+//        lineone.panit()
+//        linetwo.panit()
+//        var dx=(linetwo.b-lineone.b)/(lineone.k-linetwo.k)
+//        var dy=-(linetwo.k*dx+linetwo.b)
+//        var dot=new Dot(dx,dy)
+//        dot.paint()
+//        lineone.step()
+//        linetwo.step()
+//
+//    },50)
+
+
+
+
+    function paintLine() {
+        for(var i=0;i<lines.length;i++){
+            lines[i].panit()
+        }
+    }
+    function stepLine() {
+        for(var i=0;i<lines.length;i++){
+            lines[i].step()
+        }
+    }
+
+    setInterval(function () {
+        ctx.clearRect(0,0,c.width,c.height)
+        creatLine()
+        paintLine()
+        creatDot()
+        paintDot()
+        stepLine()
+
+    },50)
+    function animate() {
+        ctx.clearRect(0,0,c.width,c.height)
+        creatLine()
+        paintLine()
+        stepLine()
+        creatDot()
+        paintDot()
+        window.requestNextAnimationFrame(animate);
+    }
+//    animate(1000)
+
+</script>
