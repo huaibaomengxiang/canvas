@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" id="moban">
+    <canvas id="show" width="1200" height="320"></canvas>
+</body>
+</html>
+<script>
+    var rc=document.querySelector("#show")
+    var rctx=rc.getContext('2d')
+    var c=document.createElement("canvas")
+    var ctx=c.getContext('2d')
+    c.width=1200
+    c.height=320
+    var points=[]
+    var Lines=[]
+    var gap=5
+    var box=document.querySelector("#moban")
+    box.onchange=function () {
+        var val=this.value
+        rctx.clearRect(0,0,rc.width,rc.height)
+
+        write(val)
+        getPoints()
+        line()
+        paint(Lines)
+    }
+
+//    document.querySelector("body").appendChild(c)
+
+    function write(val) {
+        ctx.clearRect(0,0,c.width,c.height)
+        ctx.font="130px 华文行楷"
+        ctx.fillStyle="black"
+        ctx.fillText(val,50,250,)
+        ctx.fill()
+    }
+    function getPoints() {
+        var imageData=ctx.getImageData(0,0,c.width,c.height).data
+        var pos=[]
+        var x=0,y=0,index=0;
+        for (let i=0;i<imageData.length;i+=4*gap){
+            if(imageData[i+3]==255){
+                pos.push({x:x,y:y})
+            }
+            index=Math.floor(i/4)
+            x=index%c.width
+            y=Math.floor(index/c.width)
+            if(x>=c.width-gap){
+                i += gap * 4 * c.width;
+            }
+        }
+        points=pos
+    }
+    function line() {
+        var lines=[]
+        for(let i=0;i<points.length;i++){
+            for (let j=points.length-1;j>0;j--){
+                let distance=Math.sqrt(Math.pow(points[i].x-points[j].x,2)+Math.pow(points[i].y-points[j].y,2))
+                if(points[i].x==points[j].x&&points[i].y==points[j].y||distance>15||distance<0){
+                    continue;
+                }
+                lines.push({
+                    pos:[{x:points[i].x,y:points[i].y},{x:points[j].x,y:points[j].y}],
+                    distance:distance
+                })
+
+            }
+        }
+        Lines=lines
+    }
+    function paint(arr) {
+
+        rctx.strokeStyle="black"
+        rctx.lineWidth=0.5
+        arr.forEach(function (item,index) {
+            let pos=item.pos
+            rctx.beginPath()
+            rctx.moveTo(pos[0].x,pos[0].y)
+            rctx.lineTo(pos[1].x,pos[1].y)
+            rctx.stroke()
+//            if(index%5==0){
+//
+//            }
+        })
+
+    }
+
+
+</script>
