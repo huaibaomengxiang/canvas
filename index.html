@@ -168,20 +168,6 @@
 //
 //    },50)
 
-
-
-
-    function paintLine() {
-        for(var i=0;i<lines.length;i++){
-            lines[i].panit()
-        }
-    }
-    function stepLine() {
-        for(var i=0;i<lines.length;i++){
-            lines[i].step()
-        }
-    }
-
     setInterval(function () {
         ctx.clearRect(0,0,c.width,c.height)
         creatLine()
@@ -190,7 +176,7 @@
         paintDot()
         stepLine()
 
-    },50)
+    },60)
     function animate() {
         ctx.clearRect(0,0,c.width,c.height)
         creatLine()
