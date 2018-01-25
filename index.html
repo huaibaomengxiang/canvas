@@ -20,8 +20,9 @@
         padding-top: 50px;
     }
     canvas{
-        display: block;
-        margin:0 auto;
+        position: absolute;
+        left:0;
+        top:0;
         background: #eee;
     }
 </style>
@@ -31,86 +32,91 @@
 </html>
 <script>
     var c=document.querySelector("canvas")
+    c.width=window.innerWidth
+    c.height=window.innerHeight
     var ctx=c.getContext("2d")
 
-    //函数
-    window.requestNextAnimationFrame = (function(){
-        var originalWebkitMethod,
-            wrapper = undefined,
-            callback = undefined,
-            geckoVersion = 0,
-            userAgent = navigator.userAgent,
-            index = 0,
-            self = this;
-        if(window.webkitRequestAnimationFrame){
-            wrapper = function(time){
-                if(time === undefined){
-                    time += new Date();
-                }
-                self.callback(time);
-            };
-            originalWebkitMethod = window.webkitRequestAnimationFrame;
-            window.webkitRequestAnimationFrame = function(callback,element){
-                self.callback = callback;
-                originalWebkitMethod(wrapper , element);
-            }
-        }
-        if(window.mozRequestAnimationFrame){
-            index = userAgent.indexOf('rv:');
-            if(userAgent.indexOf('Gecko') != -1){
-                geckoVersion = userAgent.substr(index+3 , 3);
-                if(geckoVersion === '2.0'){
-                    window.mozRequestAnimationFrame = undefined;
-                }
-            }
-        }
-        return window.requestNextAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function (callback , element){
-                var start,
-                    finish;
-                window.setTimeout(function(){
-                    start = +new Date();
-                    callback(start);
-                    finish = +new Date();
-                    self.timeout = 1000/60 - (finish - start);
-                } , self.timeout);
-            };
-    })();
-
     function Line() {
+        //垂直方向的线
         this.x=Math.random()*c.width
         this.endx=Math.random()*c.width
-        this.k=-600/(this.endx-this.x)
-        this.b=-(this.k*this.x)
-        this.speed=5
+        if(this.endx==this.x){
+            if(this.x+10>c.width){
+                this.endx=this.x-10
+            }else{
+                this.endx=this.x+10
+            }
+        }
+        //水平方向的线
+        this.y=Math.random()*c.height
+        this.endy=Math.random()*c.height
+        if(this.endy==this.y){
+            if(this.y+10>c.height){
+                this.endy=this.y-10
+            }else{
+                this.endy=this.y+10
+            }
+        }
+        //随机线的方向
+        this.d=Math.random()
+        if(this.d>0.5){
+            this.k=-c.height/(this.endx-this.x)
+            this.b=-(this.k*this.x)
+        }else {
+            this.k=-(this.endy-this.y)/c.width
+            this.b=-this.y
+        }
+        this.speed={
+            x:5,
+            endx:5,
+            y:5,
+            endy:5,
+        }
         this.panit=function(){
             ctx.beginPath()
-            ctx.moveTo(this.x,0)
-            ctx.lineTo(this.endx,600)
+            if(this.d>0.5){
+                ctx.moveTo(this.x,0)
+                ctx.lineTo(this.endx,c.height)
+            }else {
+                ctx.moveTo(0,this.y)
+                ctx.lineTo(c.width,this.endy)
+            }
             ctx.strokeStyle="black"
             ctx.stroke()
         }
         this.step=function () {
-            if(this.x>c.width||this.endx>c.width){
-                this.speed*=-1
+            if(this.x>c.width||this.x<0){
+                this.speed.x*=-1
             }
-            if(this.x<0||this.endx<0){
-                this.speed*=-1
+            if(this.endx>c.width||this.endx<0){
+                this.speed.endx*=-1
             }
-            this.x+=this.speed
-            this.endx+=this.speed
-            this.b=-(this.k*this.x)
+            if(this.y>c.height||this.y<0){
+                this.speed.y*=-1
+            }
+            if(this.endy>c.height||this.endy<0){
+                this.speed.endy*=-1
+            }
+            if(this.d>0.5){
+                this.x+=this.speed.x
+                this.endx+=this.speed.endx
+                this.k=-c.height/(this.endx-this.x)
+                this.b=-(this.k*this.x)
+            }else {
+                this.y+=this.speed.y
+                this.endy+=this.speed.endy
+                this.k=-(this.endy-this.y)/c.width
+                this.b=-this.y
+            }
+
         }
     }
     function Dot(dx,dy) {
+        console.log(dx,dy)
         this.paint=function () {
             ctx.beginPath()
             ctx.arc(dx,dy,3,0, Math.PI * 2,false)
-            ctx.fillStyle="black"
+            ctx.fillStyle="rgba(0,0,0,.5)"
             ctx.fill()
         }
     }
@@ -122,7 +128,7 @@
     function creatDot() {
         var aa=[]
         for(var i=0;i<lines.length;i++){
-            for(var j=0;j<lines.length;j++){
+            for(var j=1;j<lines.length;j++){
                 var dx=(lines[i].b-lines[j].b)/(lines[j].k-lines[i].k)
                 var dy=-(lines[i].k*dx+lines[i].b)
                 var dot=new Dot(dx,dy)
@@ -136,9 +142,9 @@
             dots[i].paint()
         }
     }
-    function creatLine() {
+    function creatLine(num) {
         var line=new Line()
-        if(lines.length<10){
+        if(lines.length<num){
             lines.push(line)
         }
     }
@@ -168,24 +174,29 @@
 //
 //    },50)
 
-    setInterval(function () {
-        ctx.clearRect(0,0,c.width,c.height)
-        creatLine()
-        paintLine()
-        creatDot()
-        paintDot()
-        stepLine()
 
-    },60)
-    function animate() {
+//    setInterval(function () {
+//        ctx.clearRect(0,0,c.width,c.height)
+//        creatLine(3)
+//        paintLine()
+//        creatDot()
+//        paintDot()
+//        stepLine()
+//    },1000)
+
+    function move() {
         ctx.clearRect(0,0,c.width,c.height)
-        creatLine()
+        creatLine(8)
         paintLine()
-        stepLine()
         creatDot()
         paintDot()
-        window.requestNextAnimationFrame(animate);
+        stepLine()
+        requestAnimationFrame(move)
     }
-//    animate(1000)
+    window.requestAnimationFrame(move)
+    window.onresize=function () {
+        c.width=window.innerWidth;
+        c.height=window.innerHeight;
+    }
 
 </script>
