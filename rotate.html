@@ -27,25 +27,26 @@
     </canvas>
 </body>
 </html>
-<script src="./utils.js"></script>
+<script src="js/utils.js"></script>
 <script>
     var c=document.querySelector("canvas")
     c.width=window.innerWidth
     c.height=window.innerHeight
+
     var ctx=c.getContext('2d'),
         mouse=window.utils.captureMouse(c),
         centerX=c.width/2,
         centerY=c.height/2;
-
     window.addEventListener("keydown",onKeyboard,false)
-
     function Line(x,y) {
         this.x=x;
         this.y=y;
-        this.paint=function (jiaodu=0) {
+        this.angle=0
+        this.speed=10
+        this.paint=function () {
             ctx.save()
             ctx.translate(this.x,this.y)
-            ctx.rotate(jiaodu)
+            ctx.rotate(this.angle)
             ctx.strokeStyle='rgba(255,255,255,0.8)'
             ctx.beginPath();  //路径开始
             ctx.moveTo(50,0);
@@ -55,39 +56,30 @@
             ctx.stroke()
             ctx.restore()
         }
+        this.step=function () {
+            let dx=mouse.x-this.x
+            let dy=mouse.y-this.y
+            this.angle=Math.atan2(dy,dx)
+            var vx=Math.cos(this.angle)*line.speed
+            var vy=Math.sin(this.angle)*line.speed
+            this.x+=vx
+            this.y+=vy
+
+        }
     }
-
-
-//    var lines=[]
-//    function createLine(num) {
-//        if(lines.length<num){
-//            var line=new Line(centerX,centerY)
-//            lines.push(line)
-//        }
-//    }
-//    function paintLine() {
-//
-//    }
     var line=new Line(centerX,centerY)
-    line.paint()
-
     function move() {
         ctx.clearRect(0,0,c.width,c.height)
-        let dx=mouse.x-centerX
-        let dy=mouse.y-centerY
-        let jiaodu=Math.atan2(dy,dx)
-        line.paint(jiaodu)
+        line.paint()
+        line.step()
         requestAnimationFrame(move)
     }
-
-
-    c.addEventListener("mousemove",function () {
-        window.requestAnimationFrame(move)
-    })
+    window.requestAnimationFrame(move)
     window.onresize=function () {
         c.width=window.innerWidth;
         c.height=window.innerHeight;
     }
+
 
 
 
