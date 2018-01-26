@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        padding:0;
+        margin:0;
+        list-style: none;
+        box-sizing: border-box;
+    }
+    html,body{
+        width: 100%;
+        height: 100%;
+        background: #eee;
+    }
+    input{
+        display: block;
+        width: 50%;
+        height: 40px;
+        margin:0 auto;
+    }
+    canvas{
+        background: #000;
+        position: absolute;
+        left:0;
+        top:40px;
+    }
+</style>
+<body>
+    <input type="text">
+    <canvas>
+        <p>your browser not support canvas</p>
+    </canvas>
+</body>
+</html>
+<script>
+    var box=document.querySelector("input")
+    var c=document.querySelector("canvas");
+    c.width=window.innerWidth;
+    c.height=window.innerHeight-40;
+    var ctx=c.getContext('2d'),
+        centerX=c.width/2,
+        centerY=c.height/2,
+        gridX=7,
+        gridY=7,
+        partics=[];
+        fontSize=200
+    ctx.fillStyle="#fff"
+    ctx.font=fontSize+"px arial"
+
+
+    function word(text) {
+        this.text=text
+        this.offset=this.text.length/2*fontSize
+        ctx.fillText(this.text,centerX-this.offset,centerY)
+        this.paint=function () {
+
+        }
+        this.step=function () {
+
+        }
+
+    }
+    function Particle(x,y) {
+        this.x=x;
+        this.y=y;
+        this.angle=Math.random()*180
+        this.radius=Math.random()*3+2
+        this.r=Math.floor(Math.random()*100+155)
+        this.g=Math.floor(Math.random()*100+155)
+        this.b=Math.floor(Math.random()*100+155)
+        this.a=Math.random()+0.5
+        this.color='rgba('+this.r+","+this.g+","+this.b+","+this.a+")"
+        this.scale=1
+        this.paint=function () {
+            ctx.save()
+            ctx.fillStyle=this.color
+            ctx.beginPath()
+            ctx.scale(this.scale,this.scale)
+            ctx.arc(this.x/this.scale,this.y/this.scale,this.radius,0,Math.PI*2)
+            ctx.fill()
+            ctx.restore()
+        }
+        this.step=function () {
+            this.angle+=0.05
+            this.scale=this.scale+Math.sin(this.angle)*0.01
+        }
+
+    }
+    function getPos() {
+        var imageData=ctx.getImageData(0,0,c.width,c.height)
+        var buffer=new Uint32Array(imageData.data.buffer)
+        for(let j=0;j<c.height;j+=gridX){
+            for(let i=0;i<c.width;i+=gridY){
+                if(buffer[j*c.width+i]){
+                    var particle=new Particle(i,j)
+                    partics.push(particle)
+                }
+            }
+        }
+    }
+    box.onchange=function () {
+        partics=[]
+        var val=this.value
+        ctx.clearRect(0,0,c.width,c.height)
+        word(val)
+        getPos()
+        window.requestAnimationFrame(move)
+    }
+    function move() {
+        ctx.clearRect(0,0,c.width,c.height)
+        for(let i=0;i<partics.length;i++){
+            partics[i].paint()
+            partics[i].step()
+        }
+        requestAnimationFrame(move)
+    }
+
+    window.onresize=function () {
+        c.width=window.innerWidth;
+        c.height=window.innerHeight;
+    }
+
+</script>
