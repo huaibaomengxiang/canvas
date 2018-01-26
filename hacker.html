@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        padding:0;
+        margin:0;
+        list-style: none;
+        box-sizing: border-box;
+    }
+    canvas{
+        background: #000;
+        position: absolute;
+        left:0;
+        top:0;
+    }
+</style>
+<body>
+    <canvas>
+        <p>your browser not support canvas</p>
+    </canvas>
+</body>
+</html>
+<script>
+    var c=document.querySelector("canvas")
+    c.width=window.innerWidth
+    c.height=window.innerHeight
+    var ctx=c.getContext('2d');
+
+    var clearColor='rgba(0,0,0,0.1)',
+        wordColor="#33ff33",
+        word="0123456789qwertyuiopasdfghjklzxcvbnm,./;'\[]QWERTYUIOP{}ASDFGHJHJKL:ZXCVBBNM<>?",
+        wordArr=word.split(""),
+        fontSize=16
+        row=Math.floor(c.width/fontSize)
+        cels=[];
+    for(let i=0;i<row;i++){
+        cels[i]=1
+    }
+    function write() {
+        ctx.save()
+        ctx.font=fontSize+"px arial"
+        ctx.fillStyle=wordColor
+        for(let i=0;i<cels.length;i++){
+            var text=wordArr[Math.floor(Math.random()*wordArr.length)]
+            ctx.fillText(text,i*fontSize,cels[i]*fontSize)
+            if(cels[i]*fontSize>c.height||Math.random()>0.98){
+                cels[i]=0
+            }
+            cels[i]++
+        }
+        ctx.restore()
+    }
+    function move() {
+        write()
+        ctx.fillStyle=clearColor
+        ctx.fillRect(0,0,c.width,c.height)
+        requestAnimationFrame(move)
+    }
+    window.requestAnimationFrame(move)
+    window.onresize=function () {
+        c.width=window.innerWidth;
+        c.height=window.innerHeight;
+    }
+</script>
