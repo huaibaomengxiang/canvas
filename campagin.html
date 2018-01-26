@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        padding:0;
+        margin:0;
+        list-style: none;
+        box-sizing: border-box;
+    }
+    canvas{
+        background: #000;
+        position: absolute;
+        left:0;
+        top:0;
+    }
+</style>
+<body>
+    <canvas>
+        <p>your browser not support canvas</p>
+    </canvas>
+</body>
+</html>
+<script>
+    var c=document.querySelector("canvas")
+    c.width=window.innerWidth
+    c.height=window.innerHeight
+    var ctx=c.getContext('2d');
+
+
+
+    function Ball(x,y,range,r=10) {
+        this.x=x
+        this.y=y
+        this.range=range //振幅
+        this.angle=0 //角度
+        this.r=r   //圆周运动跟圆心的距离
+        this.radiusX=50  //椭圆
+        this.radiusY=100  //椭圆
+        this.scale=1 //放大倍数
+        this.vy=0
+        this.g=0.2
+        this.b=-0.8
+        //sin
+//        this.paint=function () {
+//            ctx.beginPath()
+//            ctx.strokeStyle = "#fff"
+//            ctx.moveTo(0, c.height / 2)
+//            ctx.lineTo(c.width, c.height / 2)
+//            ctx.stroke()
+//            ctx.closePath()
+//            ctx.save()
+//            ctx.fillStyle = "blue"
+//            ctx.beginPath()
+//            ctx.arc(this.x, this.y, 20, 0, Math.PI * 2)
+//            ctx.fill()
+//            ctx.restore()
+//        }
+//        this.step=function () {
+//            this.x++
+//            this.angle+=0.05
+//            this.y=this.y+Math.sin(this.angle)*this.range
+//        }
+        //旋转yuan
+//        this.paint=function () {
+//            ctx.beginPath()
+//            ctx.fillStyle="#fff"
+//            ctx.arc(c.width/2,c.height/2,3,0,Math.PI)
+//            ctx.fill()
+//            ctx.closePath()
+//            ctx.save()
+//            ctx.translate(c.width/2,c.height/2)
+//            ctx.rotate(Math.PI/180*this.angle)
+//            ctx.fillStyle = "blue"
+//            ctx.beginPath()
+//            ctx.arc(this.r, 0, 20, 0, Math.PI * 2)
+//            ctx.fill()
+//            ctx.restore()
+//        }
+        //脉冲
+//        this.paint=function () {
+//            ctx.save()
+//            ctx.fillStyle = "blue"
+//            ctx.beginPath()
+//            ctx.scale(this.scale,this.scale)
+//            ctx.arc(this.x/this.scale, this.y/this.scale, 3, 0, Math.PI * 2)
+//            ctx.fill()
+//            ctx.restore()
+//        }
+//        this.step=function () {
+//            this.angle+=0.05
+//            this.scale=this.scale+Math.sin(this.angle)*this.range
+//            console.log(this.scale)
+//        }
+        //坐标圆周运动
+//        this.paint=function () {
+//            ctx.beginPath()
+//            ctx.fillStyle="#fff"
+//            ctx.arc(c.width/2,c.height/2,3,0,Math.PI)
+//            ctx.fill()
+//            ctx.closePath()
+//            ctx.save()
+//            ctx.fillStyle = "blue"
+//            ctx.beginPath()
+//            ctx.arc(this.x,this.y, 20, 0, Math.PI * 2)
+//            ctx.fill()
+//            ctx.restore()
+//        }
+//        this.step=function () {
+//            this.angle+=0.05
+//            this.x=c.width/2+this.r*Math.cos(this.angle)
+//            this.y=c.height/2+this.r*Math.sin(this.angle)
+//        }
+        //椭圆运动
+//        this.paint=function () {
+//            ctx.beginPath()
+//            ctx.fillStyle="#fff"
+//            ctx.arc(c.width/2,c.height/2,3,0,Math.PI)
+//            ctx.fill()
+//            ctx.closePath()
+//            ctx.save()
+//            ctx.fillStyle = "blue"
+//            ctx.beginPath()
+//            ctx.arc(this.x,this.y, 20, 0, Math.PI * 2)
+//            ctx.fill()
+//            ctx.restore()
+//        }
+//        this.step=function () {
+//            this.angle+=0.05
+//            this.x=c.width/2+this.radiusX*Math.cos(this.angle)
+//            this.y=c.height/2+this.radiusY*Math.sin(this.angle)
+//        }
+        //重力运动
+        this.paint=function () {
+            ctx.save()
+            ctx.fillStyle = "blue"
+            ctx.beginPath()
+            ctx.arc(this.x,this.y, 20, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.restore()
+        }
+        this.step=function () {
+            if(this.y+20>c.height){
+                this.y=c.height-20
+                this.vy*=this.b
+            }
+            this.vy+=this.g
+            this.y+=this.vy
+
+        }
+
+    }
+
+    let aa=new Ball(c.width/2,c.height/2,0.5,50)
+//    aa.paint()
+    function move() {
+        ctx.clearRect(0,0,c.width,c.height)
+        aa.paint()
+        aa.step()
+        requestAnimationFrame(move)
+    }
+    window.requestAnimationFrame(move)
+    window.onresize=function () {
+        c.width=window.innerWidth;
+        c.height=window.innerHeight;
+    }
+</script>
