@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        padding:0;
+        margin:0;
+        list-style: none;
+        box-sizing: border-box;
+    }
+    canvas{
+        position: absolute;
+        left:0;
+        top:0;
+    }
+</style>
+<body>
+    <canvas>
+        <p>your bowser not support canvas</p>
+    </canvas>
+</body>
+</html>
+<script>
+    var c=document.querySelector("canvas");
+    c.width=400;
+    c.height=600;
+    var ctx=c.getContext('2d');
+
+    function Line(color,h) {
+        this.color=color;
+        this.time=0
+        this.left=Math.sin(Math.PI/180*this.time)*50;
+        this.right=Math.cos(Math.PI/180*this.time)*50;
+        this.h=h;
+        this.first={
+            x:Math.random()*c.width/2,
+            y:this.h+this.left-50
+        }
+        this.second={
+            x:c.width/2+Math.random()*c.width/2,
+            y:this.h+this.right+50
+        }
+
+        this.paint=function () {
+            ctx.beginPath();
+            ctx.fillStyle=this.color;
+            ctx.moveTo(0,this.h+this.left);
+            ctx.bezierCurveTo(this.first.x,this.first.y,this.second.x,this.second.y,c.width,this.h+this.right);
+            ctx.lineTo(c.width,c.height);
+            ctx.lineTo(0,c.height);
+            ctx.closePath();
+            ctx.fill();
+        }
+        this.step=function () {
+            this.time++;
+            this.left=Math.sin(Math.PI/180*this.time)*50;
+            this.right=Math.cos(Math.PI/180*this.time)*50;
+        }
+    }
+
+
+//    line("#7ce0ff",200,angle,rightAngle)
+//    line("#3eecff",300,angle,rightAngle)
+//    line("#13b9ff",400,angle,rightAngle)
+
+    var lineone=new Line("#7ce0ff",300)
+    function move() {
+        ctx.clearRect(0,0,c.width,c.height);
+        lineone.paint()
+        lineone.step()
+        requestAnimationFrame(move);
+    }
+    window.requestAnimationFrame(move);
+
+
+</script>

@@ -47,7 +47,6 @@
             ctx.fill()
         }
         this.step=function () {
-            console.log(this.v)
             this.x+=this.v.x;
             this.y+=this.v.y;
             if(this.x<0||this.x>c.width){
@@ -76,12 +75,14 @@
             particels[i].step()
         }
     }
-    setInterval(function () {
+    function move() {
         ctx.clearRect(0,0,c.width,c.height)
         creatParticel(1000)
         paintParticel()
         stepParticel()
-    },60)
+        requestAnimationFrame(move)
+    }
+    window.requestAnimationFrame(move)
     window.onresize=function () {
         c.width=window.innerWidth;
         c.height=window.innerHeight;

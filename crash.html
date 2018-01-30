@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    *{
+        padding:0;
+        margin:0;
+        list-style: none;
+        box-sizing: border-box;
+    }
+    html,body{
+        width: 100%;
+        height: 100%;
+        background: #000;
+    }
+    canvas{
+        position: absolute;
+        left:0;
+        top:0px;
+    }
+</style>
+<body>
+    <canvas>
+        <p>your bowser not support canvas</p>
+    </canvas>
+</body>
+
+</html>
+<script src="js/utils.js"></script>
+<script>
+    var c=document.querySelector("canvas");
+    c.width=window.innerWidth;
+    c.height=window.innerHeight;
+    var ctx=c.getContext('2d'),
+        lineDistance=80;
+        mouse=window.utils.captureMouse(c);
+    function Dot() {
+        this.x=Math.random()*c.width;
+        this.y=Math.random()*c.height;
+        this.r=Math.random()*3+1;
+        this.angle=0;
+        this.speed={
+            x:Math.random()>0.5? Math.random()+0.1:-(Math.random()+0.1),
+            y:Math.random()>0.5? Math.random()+0.1:-(Math.random()+0.1),
+        }
+        this.paint=function () {
+            ctx.beginPath()
+            ctx.fillStyle="rgba(255,255,255,0.6)"
+            ctx.arc(this.x,this.y,this.r,0,Math.PI*2)
+            ctx.closePath()
+            ctx.fill()
+        }
+        this.step=function () {
+            this.x+=this.speed.x
+            this.y+=this.speed.y
+            if(this.x>c.width||this.x<0){
+                this.speed.x*=-1
+            }
+            if(this.y>c.height||this.y<0){
+                this.speed.y*=-1
+            }
+        }
+    }
+    function Line(d1,d2) {
+        ctx.beginPath()
+        ctx.strokeStyle="rgba(255,255,255,0.1)"
+        ctx.moveTo(d1.x,d1.y)
+        ctx.lineTo(d2.x,d2.y)
+        ctx.closePath()
+        ctx.stroke()
+    }
+
+    var dots=[]
+    function creatDot(num) {
+        if(dots.length<num){
+            var aa=new Dot()
+            dots.push(aa)
+        }
+    }
+    function paintDot() {
+        for(let i=0;i<dots.length;i++){
+            dots[i].paint()
+            if(Distance(dots[i],mouse)<lineDistance){
+                var mouseLine=new Line(dots[i],mouse)
+                let dx=mouse.x-dots[i].x
+                let dy=mouse.y-dots[i].y
+                dots[i].angle=Math.atan2(dy,dx)
+                var vx=Math.cos(dots[i].angle)*2
+                var vy=Math.sin(dots[i].angle)*2
+                dots[i].x+=vx
+                dots[i].y+=vy
+            }
+            for(let j=1;j<dots.length;j++){
+                if(Distance(dots[i],dots[j])<lineDistance){
+                    var line=new Line(dots[i],dots[j])
+                }
+            }
+        }
+    }
+    function stepDot() {
+        for(let i=0;i<dots.length;i++){
+            dots[i].step()
+        }
+    }
+
+    function Distance(d1,d2) {
+        return Math.sqrt(Math.pow(d1.x-d2.x,2)+Math.pow(d1.y-d2.y,2))
+    }
+    
+    function move() {
+        ctx.clearRect(0,0,c.width,c.height)
+        creatDot(100)
+        paintDot()
+        stepDot()
+        requestAnimationFrame(move)
+    }
+    window.requestAnimationFrame(move)
+    window.onresize=function () {
+        c.width=window.innerWidth;
+        c.height=window.innerHeight;
+    }
+    c.addEventListener("mousemove",function () {
+        for(let i=0;i<dots.length;i++){
+
+        }
+
+    })
+</script>

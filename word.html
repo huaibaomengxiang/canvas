@@ -26,15 +26,12 @@
     box.onchange=function () {
         var val=this.value
         rctx.clearRect(0,0,rc.width,rc.height)
-
         write(val)
         getPoints()
         line()
         paint(Lines)
     }
-
 //    document.querySelector("body").appendChild(c)
-
     function write(val) {
         ctx.clearRect(0,0,c.width,c.height)
         ctx.font="130px 华文行楷"
@@ -77,7 +74,6 @@
         Lines=lines
     }
     function paint(arr) {
-
         rctx.strokeStyle="black"
         rctx.lineWidth=0.5
         arr.forEach(function (item,index) {
@@ -86,11 +82,7 @@
             rctx.moveTo(pos[0].x,pos[0].y)
             rctx.lineTo(pos[1].x,pos[1].y)
             rctx.stroke()
-//            if(index%5==0){
-//
-//            }
         })
-
     }
 
 
